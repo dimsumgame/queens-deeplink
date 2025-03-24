@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script>
+        // 智能设备检测（优化版）
+        function isiOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+        }
+
+        // 生成种子参数链接
+        function generateLink() {
+            const params = new URLSearchParams(location.search)
+            const seed = params.get('seed') || '0'
+            
+            // 自定义Scheme格式
+            const customScheme = `queens://seed?value=${seed}`
+            
+            // 平台商店链接
+            const storeLinks = {
+                ios: 'https://apps.apple.com/app/id6742400101',
+                android: 'https://play.google.com/store/apps/details?id=com.dimsumgames.queens'
+            }
+
+            return { seed, customScheme, storeLinks }
+        }
+
+        // 主跳转逻辑
+        function smartRedirect() {
+            const { customScheme, storeLinks } = generateLink()
+            
+            // 第一步：尝试打开App
+            window.location.href = customScheme
+            
+            // 第二步：如果未安装则跳转商店
+            setTimeout(() => {
+                if (!document.hidden) {
+                    window.location.href = isiOS() ? storeLinks.ios : storeLinks.android
+                }
+            }, isiOS() ? 800 : 1500) // 平台差异延迟
+        }
+    </script>
+</head>
+<body onload="smartRedirect()">
+    <div style="text-align:center; padding:50px">
+        <h2>正在启动「皇后养成计划」...</h2>
+        <p>如果未自动跳转，请<a href="#" onclick="smartRedirect()">点击这里</a></p>
+    </div>
+</body>
+</html>
